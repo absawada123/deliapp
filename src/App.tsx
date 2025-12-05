@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Login } from './components/Login';
+import { Signup } from './components/Signup';
 import { Dashboard } from './components/Dashboard';
 import { ParcelAssignment } from './components/ParcelAssignment';
 import { OrderDetails } from './components/OrderDetails';
@@ -15,7 +16,9 @@ import { Analytics } from './components/Analytics';
 import { ProofOfDelivery } from './components/ProofOfDelivery';
 import { Loading } from './components/Loading';
 
+
 export type DeliveryStatus = 'pending' | 'accepted' | 'en_route_pickup' | 'arrived_pickup' | 'picked_up' | 'en_route_delivery' | 'arrived_delivery' | 'verified' | 'payment_collected' | 'completed';
+
 
 export interface Order {
   id: string;
@@ -33,6 +36,7 @@ export interface Order {
   otp?: string;
 }
 
+
 export interface Notification {
   id: string;
   title: string;
@@ -42,8 +46,10 @@ export interface Notification {
   type: 'assignment' | 'update' | 'alert';
 }
 
+
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authScreen, setAuthScreen] = useState<'signup' | 'login'>('signup');
   const [currentScreen, setCurrentScreen] = useState<'dashboard' | 'assignments' | 'order' | 'delivery' | 'verification' | 'payment' | 'tracking' | 'notifications' | 'barcode' | 'map' | 'livemap' | 'analytics' | 'proof'>('dashboard');
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -67,6 +73,7 @@ export default function App() {
       type: 'update'
     }
   ]);
+
 
   const [orders, setOrders] = useState<Order[]>([
     {
@@ -106,6 +113,7 @@ export default function App() {
     }
   ]);
 
+
   useEffect(() => {
     // Simulate push notification
     const timer = setTimeout(() => {
@@ -122,9 +130,23 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
+
   const addNotification = (notification: Notification) => {
     setNotifications((prev: Notification[]) => [notification, ...prev]);
   };
+
+
+  const handleSignup = () => {
+    setIsLoading(true);
+    setLoadingMessage('Creating your account...');
+    
+    setTimeout(() => {
+      setIsLoggedIn(true);
+      setCurrentScreen('dashboard');
+      setIsLoading(false);
+    }, 2000);
+  };
+
 
   const handleLogin = () => {
     setIsLoading(true);
@@ -137,9 +159,11 @@ export default function App() {
     }, 2000);
   };
 
+
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
+
 
   const handleSelectOrder = (order: Order) => {
     setIsLoading(true);
@@ -152,6 +176,7 @@ export default function App() {
     }, 800);
   };
 
+
   const handleStartDelivery = () => {
     setIsLoading(true);
     setLoadingMessage('Initializing delivery route...');
@@ -161,6 +186,7 @@ export default function App() {
       setIsLoading(false);
     }, 1000);
   };
+
 
   const handleScanBarcode = () => {
     setIsLoading(true);
@@ -172,6 +198,7 @@ export default function App() {
     }, 800);
   };
 
+
   const handleVerification = () => {
     setIsLoading(true);
     setLoadingMessage('Preparing verification...');
@@ -181,6 +208,7 @@ export default function App() {
       setIsLoading(false);
     }, 800);
   };
+
 
   const handlePayment = () => {
     setIsLoading(true);
@@ -192,6 +220,7 @@ export default function App() {
     }, 800);
   };
 
+
   const handleViewTracking = () => {
     setIsLoading(true);
     setLoadingMessage('Loading delivery timeline...');
@@ -201,6 +230,7 @@ export default function App() {
       setIsLoading(false);
     }, 800);
   };
+
 
   const handleViewMap = () => {
     setIsLoading(true);
@@ -212,6 +242,7 @@ export default function App() {
     }, 1000);
   };
 
+
   const handleStartNavigation = () => {
     setIsLoading(true);
     setLoadingMessage('Starting live navigation...');
@@ -221,6 +252,7 @@ export default function App() {
       setIsLoading(false);
     }, 1000);
   };
+
 
   const handleCompleteDelivery = () => {
     if (selectedOrder) {
@@ -240,6 +272,7 @@ export default function App() {
     }
   };
 
+
   const updateOrderStatus = (orderId: string, status: DeliveryStatus) => {
     setOrders((prev: Order[]) => prev.map((o: Order) => 
       o.id === orderId ? { ...o, status } : o
@@ -249,21 +282,32 @@ export default function App() {
     }
   };
 
+
   const markNotificationAsRead = (id: string) => {
     setNotifications((prev: Notification[]) => prev.map((n: Notification) => 
       n.id === id ? { ...n, read: true } : n
     ));
   };
 
-  if (!isLoggedIn) {
-    return <Login onLogin={handleLogin} />;
+
+  // In your App component, remove the external links and pass the toggle handler:
+
+if (!isLoggedIn) {
+  if (authScreen === 'login') {
+    return <Login onLogin={handleLogin} onToggleAuth={() => setAuthScreen('signup')} />;
   }
+  return <Signup onSignup={handleSignup} onToggleAuth={() => setAuthScreen('login')} />;
+}
+
+
 
   const unreadCount = notifications.filter((n: Notification) => !n.read).length;
+
 
   if (isLoading) {
     return <Loading message={loadingMessage} isDarkMode={isDarkMode} />;
   }
+
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -357,7 +401,6 @@ export default function App() {
             updateOrderStatus(selectedOrder.id, 'verified');
             handlePayment();
           }}
-          // Removed isDarkMode prop as it caused a type error
         />
       )}
       
@@ -367,7 +410,6 @@ export default function App() {
           onBack={() => setCurrentScreen('delivery')}
           onPaymentComplete={() => {
             updateOrderStatus(selectedOrder.id, 'payment_collected');
-            // Move to POD instead of completing immediately
             setCurrentScreen('proof');
           }}
           isDarkMode={isDarkMode}
@@ -419,7 +461,7 @@ export default function App() {
           order={selectedOrder}
           onBack={() => setCurrentScreen('delivery')}
           isDarkMode={isDarkMode}
-          onComplete={handleCompleteDelivery} // Added required prop
+          onComplete={handleCompleteDelivery}
         />
       )}
     </div>
