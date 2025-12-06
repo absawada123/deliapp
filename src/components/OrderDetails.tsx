@@ -143,19 +143,21 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
           {/* Order Information Grid */}
           <div className="bg-white/20 backdrop-blur-sm rounded-2xl p-4 mt-3">
             <div className="grid grid-cols-2 gap-3">
-              <div>
+              <div className="min-w-0"> {/* Added min-w-0 to allow shrinking */}
                 <p className="text-blue-100 text-xs mb-1">Distance</p>
                 <p className="text-white">{order.distance}</p>
               </div>
-              <div>
+              <div className="min-w-0"> {/* Added min-w-0 to allow shrinking */}
                 <p className="text-blue-100 text-xs mb-1">Est. Time</p>
                 <p className="text-white">{order.estimatedTime}</p>
               </div>
-              <div>
-                <p className="text-blue-100 text-xs mb-1">Barcode</p>
-                <p className="text-white">{order.barcode}</p>
+              <div className="min-w-0"> {/* Added min-w-0 to allow shrinking */}
+                <p className="text-blue-100 text-xs mb-1">QR code</p>
+                <p className="text-white break-all text-xs overflow-hidden"> {/* Added overflow-hidden */}
+                  {order.barcode}
+                </p>
               </div>
-              <div>
+              <div className="min-w-0"> {/* Added min-w-0 to allow shrinking */}
                 <p className="text-blue-100 text-xs mb-1">OTP Code</p>
                 <p className="text-white">{order.otp}</p>
               </div>
@@ -303,7 +305,7 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
         }`}>
           <div className="flex items-center gap-2 mb-4">
             <QrCode className="text-blue-600" size={20} />
-            <h2 className={isDarkMode ? 'text-gray-100' : 'text-gray-800'}>Package QR Code</h2>
+            <h2 className={isDarkMode ? 'text-gray-100' : 'text-gray-800'}>Package QR Code (for testing)</h2>
           </div>
           <div className="flex justify-center">
             <QRCode 
@@ -352,8 +354,8 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['accepted', 'en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['accepted', 'en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -364,8 +366,8 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['accepted', 'en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>Order Accepted</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Parcel ready for pickup</p>
               </div>
@@ -375,10 +377,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : order.status === 'accepted'
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : order.status === 'accepted'
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -391,10 +393,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['en_route_pickup', 'arrived_pickup', 'picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : order.status === 'accepted'
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : order.status === 'accepted'
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>En Route to Pickup</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Rider heading to pickup location</p>
               </div>
@@ -404,10 +406,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : ['en_route_pickup', 'arrived_pickup'].includes(order.status)
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : ['en_route_pickup', 'arrived_pickup'].includes(order.status)
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -420,10 +422,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['picked_up', 'en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : ['en_route_pickup', 'arrived_pickup'].includes(order.status)
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : ['en_route_pickup', 'arrived_pickup'].includes(order.status)
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>Order Picked Up</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Barcode scanned successfully</p>
               </div>
@@ -433,10 +435,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : order.status === 'picked_up'
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : order.status === 'picked_up'
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -449,10 +451,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['en_route_delivery', 'arrived_delivery', 'verified', 'payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : order.status === 'picked_up'
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : order.status === 'picked_up'
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>En Route to Customer</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Delivering to customer address</p>
               </div>
@@ -462,10 +464,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['verified', 'payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : ['en_route_delivery', 'arrived_delivery'].includes(order.status)
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : ['en_route_delivery', 'arrived_delivery'].includes(order.status)
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['verified', 'payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -478,10 +480,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['verified', 'payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : ['en_route_delivery', 'arrived_delivery'].includes(order.status)
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : ['en_route_delivery', 'arrived_delivery'].includes(order.status)
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>Customer Verified</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>OTP/QR code confirmed</p>
               </div>
@@ -491,10 +493,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative mb-6">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 ['payment_collected', 'completed'].includes(order.status)
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : order.status === 'verified'
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : order.status === 'verified'
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {['payment_collected', 'completed'].includes(order.status) ? (
                   <CheckCircle size={16} className="text-white" />
@@ -507,10 +509,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   ['payment_collected', 'completed'].includes(order.status)
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : order.status === 'verified'
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : order.status === 'verified'
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>Payment Collected</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>₱{order.totalAmount.toFixed(2)} received</p>
               </div>
@@ -520,10 +522,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             <div className="relative">
               <div className={`absolute -left-8 w-8 h-8 rounded-full flex items-center justify-center border-4 ${
                 order.status === 'completed'
-                  ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
-                  : order.status === 'payment_collected'
-                    ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
-                    : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
+                    ? 'bg-green-600 border-green-600 shadow-lg shadow-green-600/30'
+                    : order.status === 'payment_collected'
+                      ? 'bg-blue-600 border-blue-600 animate-pulse shadow-lg shadow-blue-600/50'
+                      : isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-300'
               }`}>
                 {order.status === 'completed' ? (
                   <CheckCircle size={16} className="text-white" />
@@ -536,10 +538,10 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
               <div className="ml-1">
                 <h3 className={`font-semibold mb-1 ${
                   order.status === 'completed'
-                    ? isDarkMode ? 'text-green-400' : 'text-green-700'
-                    : order.status === 'payment_collected'
-                      ? 'text-blue-600'
-                      : isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                      ? isDarkMode ? 'text-green-400' : 'text-green-700'
+                      : order.status === 'payment_collected'
+                        ? 'text-blue-600'
+                        : isDarkMode ? 'text-gray-500' : 'text-gray-400'
                 }`}>Delivery Completed</h3>
                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Proof of delivery submitted</p>
               </div>

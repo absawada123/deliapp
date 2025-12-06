@@ -60,15 +60,39 @@ export function Dashboard({ orders, onSelectOrder, onNavigateToAssignments, onNa
       {/* Welcome Animation Overlay */}
       {showWelcome && (
         <div className="fixed inset-0 bg-gradient-to-br from-blue-600 to-indigo-700 z-50 flex items-center justify-center animate-fade-out" style={{ animation: 'fadeOut 1s ease-in-out 2s forwards' }}>
-          <div className="text-center text-white animate-bounce">
-            <img 
-              src={logoImage} 
-              alt="Logo" 
-              className="w-24 h-24 mx-auto mb-4 animate-pulse"
-            />
-            <h1 className="text-3xl mb-2">Welcome Back!</h1>
-            <p className="text-blue-200">Let{"'"}s make today great 🚀</p>
-          </div>
+          <div className="text-center text-white overflow-x-hidden h-32 flex flex-col items-start">
+  <img 
+    src={logoImage} 
+    alt="Logo" 
+    className="w-24 h-24 mb-4 animate-motor-right"
+  />
+  <h1 className="text-3xl mb-2 w-full text-center">Welcome Back!</h1>
+  <p className="text-blue-200 w-full text-center">Let{"'"}s make today great 🚀</p>
+  
+  <style jsx>{`
+    @keyframes motorRight {
+      0% {
+        transform: translateX(-120vw);
+      }
+      100% {
+        transform: translateX(120vw);
+      }
+    }
+    
+    .animate-motor-right {
+      display: inline-block;
+      transform: translateX(-120vw);      /* same as 0% frame */
+      animation-name: motorRight;
+      animation-duration: 3s;
+      animation-timing-function: ease-in-out;
+      animation-delay: 0s;
+      animation-iteration-count: 1;
+      animation-fill-mode: forwards;
+      will-change: transform;
+    }
+  `}</style>
+</div>
+
         </div>
       )}
 
