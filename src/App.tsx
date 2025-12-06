@@ -15,10 +15,9 @@ import { LiveDeliveryMapLeaflet } from './components/LiveDeliveryMapLeaflet';
 import { Analytics } from './components/Analytics';
 import { ProofOfDelivery } from './components/ProofOfDelivery';
 import { Loading } from './components/Loading';
-
+import { encryptBarcode } from './components/DeliveryFlow';
 
 export type DeliveryStatus = 'pending' | 'accepted' | 'en_route_pickup' | 'arrived_pickup' | 'picked_up' | 'en_route_delivery' | 'arrived_delivery' | 'verified' | 'payment_collected' | 'completed';
-
 
 export interface Order {
   id: string;
@@ -36,7 +35,6 @@ export interface Order {
   otp?: string;
 }
 
-
 export interface Notification {
   id: string;
   title: string;
@@ -46,6 +44,10 @@ export interface Notification {
   type: 'assignment' | 'update' | 'alert';
 }
 
+// Helper to generate unique barcodes
+const generateBarcode = (orderId: string) => {
+  return encryptBarcode(`${orderId}-${Date.now()}`);
+};
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -74,7 +76,6 @@ export default function App() {
     }
   ]);
 
-
   const [orders, setOrders] = useState<Order[]>([
     {
       id: 'ORD-2024-001',
@@ -91,7 +92,7 @@ export default function App() {
       totalAmount: 19997.00,
       distance: '8.5 km',
       estimatedTime: '25 mins',
-      barcode: 'BAR123456789',
+      barcode: generateBarcode('ORD-2024-001'),
       otp: '4582'
     },
     {
@@ -108,11 +109,10 @@ export default function App() {
       totalAmount: 750.00,
       distance: '12.3 km',
       estimatedTime: '35 mins',
-      barcode: 'BAR987654321',
+      barcode: generateBarcode('ORD-2024-002'),
       otp: '7391'
     }
   ]);
-
 
   useEffect(() => {
     // Simulate push notification
@@ -130,11 +130,9 @@ export default function App() {
     return () => clearTimeout(timer);
   }, []);
 
-
   const addNotification = (notification: Notification) => {
     setNotifications((prev: Notification[]) => [notification, ...prev]);
   };
-
 
   const handleSignup = () => {
     setIsLoading(true);
@@ -147,7 +145,6 @@ export default function App() {
     }, 2000);
   };
 
-
   const handleLogin = () => {
     setIsLoading(true);
     setLoadingMessage('Signing you in...');
@@ -159,11 +156,9 @@ export default function App() {
     }, 2000);
   };
 
-
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
-
 
   const handleSelectOrder = (order: Order) => {
     setIsLoading(true);
@@ -176,7 +171,6 @@ export default function App() {
     }, 800);
   };
 
-
   const handleStartDelivery = () => {
     setIsLoading(true);
     setLoadingMessage('Initializing delivery route...');
@@ -186,7 +180,6 @@ export default function App() {
       setIsLoading(false);
     }, 1000);
   };
-
 
   const handleScanBarcode = () => {
     setIsLoading(true);
@@ -198,7 +191,6 @@ export default function App() {
     }, 800);
   };
 
-
   const handleVerification = () => {
     setIsLoading(true);
     setLoadingMessage('Preparing verification...');
@@ -208,7 +200,6 @@ export default function App() {
       setIsLoading(false);
     }, 800);
   };
-
 
   const handlePayment = () => {
     setIsLoading(true);
@@ -220,7 +211,6 @@ export default function App() {
     }, 800);
   };
 
-
   const handleViewTracking = () => {
     setIsLoading(true);
     setLoadingMessage('Loading delivery timeline...');
@@ -230,7 +220,6 @@ export default function App() {
       setIsLoading(false);
     }, 800);
   };
-
 
   const handleViewMap = () => {
     setIsLoading(true);
@@ -242,7 +231,6 @@ export default function App() {
     }, 1000);
   };
 
-
   const handleStartNavigation = () => {
     setIsLoading(true);
     setLoadingMessage('Starting live navigation...');
@@ -252,7 +240,6 @@ export default function App() {
       setIsLoading(false);
     }, 1000);
   };
-
 
   const handleCompleteDelivery = () => {
     if (selectedOrder) {
@@ -272,7 +259,6 @@ export default function App() {
     }
   };
 
-
   const updateOrderStatus = (orderId: string, status: DeliveryStatus) => {
     setOrders((prev: Order[]) => prev.map((o: Order) => 
       o.id === orderId ? { ...o, status } : o
@@ -282,32 +268,24 @@ export default function App() {
     }
   };
 
-
   const markNotificationAsRead = (id: string) => {
     setNotifications((prev: Notification[]) => prev.map((n: Notification) => 
       n.id === id ? { ...n, read: true } : n
     ));
   };
 
-
-  // In your App component, remove the external links and pass the toggle handler:
-
-if (!isLoggedIn) {
-  if (authScreen === 'login') {
-    return <Login onLogin={handleLogin} onToggleAuth={() => setAuthScreen('signup')} />;
+  if (!isLoggedIn) {
+    if (authScreen === 'login') {
+      return <Login onLogin={handleLogin} onToggleAuth={() => setAuthScreen('signup')} />;
+    }
+    return <Signup onSignup={handleSignup} onToggleAuth={() => setAuthScreen('login')} />;
   }
-  return <Signup onSignup={handleSignup} onToggleAuth={() => setAuthScreen('login')} />;
-}
-
-
 
   const unreadCount = notifications.filter((n: Notification) => !n.read).length;
-
 
   if (isLoading) {
     return <Loading message={loadingMessage} isDarkMode={isDarkMode} />;
   }
-
 
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -333,7 +311,12 @@ if (!isLoggedIn) {
               if (exists) {
                 return prev.map(o => o.id === order.id ? { ...o, status: 'accepted' } : o);
               }
-              return [...prev, order];
+              // Encrypt barcode for new orders
+              const encryptedOrder = {
+                ...order,
+                barcode: order.barcode.includes('U2FsdGVkX1') ? order.barcode : generateBarcode(order.id)
+              };
+              return [...prev, encryptedOrder];
             });
             addNotification({
               id: Date.now().toString(),

@@ -1,6 +1,7 @@
-import { ArrowLeft, MapPin, Phone, User, Package, FileText, Navigation, CheckCircle, Circle, Clock, Truck, PackageCheck, ShieldCheck, Wallet, Trophy, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, User, Package, FileText, Navigation, CheckCircle, Circle, Clock, Truck, PackageCheck, ShieldCheck, Wallet, Trophy, ChevronDown, ChevronUp, QrCode } from 'lucide-react';
 import type { Order } from '../App';
 import { useState } from 'react';
+import QRCode from 'react-qr-code';
 
 interface OrderDetailsProps {
   order: Order;
@@ -16,7 +17,7 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
   return (
     <div className={`min-h-screen ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <div className="text-white sticky top-0 z-10" style={{ background: 'linear-gradient(to right, #0A1E3E, #003D7A)' }}>
+      <div className="text-white top-0 z-10" style={{ background: 'linear-gradient(to right, #0A1E3E, #003D7A)' }}>
         <div className="flex items-center gap-4 p-4">
           <button 
             onClick={onBack}
@@ -31,112 +32,110 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
         </div>
 
         {/* Status Badge */}
-        <div className="px-4 pb-4">
-          <div className={`backdrop-blur-md rounded-3xl p-6 relative overflow-hidden transition-all duration-500 ${
-            order.status === 'completed' ? 'bg-gradient-to-br from-green-600/40 to-emerald-600/40 border-2 border-green-400/60' :
-            order.status === 'payment_collected' ? 'bg-gradient-to-br from-green-600/40 to-teal-600/40 border-2 border-green-400/60' :
-            order.status === 'verified' ? 'bg-gradient-to-br from-green-600/40 to-blue-600/40 border-2 border-green-400/60' :
-            order.status === 'picked_up' ? 'bg-gradient-to-br from-emerald-600/40 to-cyan-600/40 border-2 border-emerald-400/60' :
-            ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-gradient-to-br from-blue-600/40 to-indigo-600/40 border-2 border-blue-400/60' :
-            ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-gradient-to-br from-blue-600/40 to-purple-600/40 border-2 border-blue-400/60' :
-            order.status === 'accepted' ? 'bg-gradient-to-br from-blue-600/40 to-sky-600/40 border-2 border-blue-400/60' :
-            'bg-white/20 border-2 border-white/30'
-          }`}>
+        <div className={`backdrop-blur-md rounded-3xl p-6 relative overflow-hidden transition-all duration-500 ${
+          order.status === 'completed' ? 'bg-gradient-to-br from-green-600/40 to-emerald-600/40 border-2 border-green-400/60' :
+          order.status === 'payment_collected' ? 'bg-gradient-to-br from-green-600/40 to-teal-600/40 border-2 border-green-400/60' :
+          order.status === 'verified' ? 'bg-gradient-to-br from-green-600/40 to-blue-600/40 border-2 border-green-400/60' :
+          order.status === 'picked_up' ? 'bg-gradient-to-br from-emerald-600/40 to-cyan-600/40 border-2 border-emerald-400/60' :
+          ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-gradient-to-br from-blue-600/40 to-indigo-600/40 border-2 border-blue-400/60' :
+          ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-gradient-to-br from-blue-600/40 to-purple-600/40 border-2 border-blue-400/60' :
+          order.status === 'accepted' ? 'bg-gradient-to-br from-blue-600/40 to-sky-600/40 border-2 border-blue-400/60' :
+          'bg-white/20 border-2 border-white/30'
+        }`}>
+          
+          {/* Animated Background Circles */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 animate-pulse"></div>
+          <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '1s' }}></div>
+          
+          {/* Content */}
+          <div className="relative z-10">
+            <p className="text-blue-50 mb-4 text-sm tracking-wide uppercase">Current Status</p>
             
-            {/* Animated Background Circles */}
-            <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-white/10 animate-pulse"></div>
-            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-white/5 animate-pulse" style={{ animationDelay: '1s' }}></div>
-            
-            {/* Content */}
-            <div className="relative z-10">
-              <p className="text-blue-50 mb-4 text-sm tracking-wide uppercase">Current Status</p>
-              
-              <div className="flex items-center gap-5">
-                {/* Large Animated Status Icon */}
-                <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center transform transition-all duration-500 ${
-                  order.status === 'completed' ? 'bg-green-500 shadow-2xl shadow-green-500/60 scale-100' :
-                  order.status === 'payment_collected' ? 'bg-green-500 shadow-2xl shadow-green-500/60 animate-bounce' :
-                  order.status === 'verified' ? 'bg-green-500 shadow-2xl shadow-green-500/60 animate-pulse' :
-                  order.status === 'picked_up' ? 'bg-emerald-500 shadow-2xl shadow-emerald-500/60 animate-pulse' :
-                  ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-blue-500 shadow-2xl shadow-blue-500/70 animate-pulse' :
-                  ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-blue-500 shadow-2xl shadow-blue-500/70 animate-pulse' :
-                  order.status === 'accepted' ? 'bg-blue-500 shadow-2xl shadow-blue-500/60 animate-pulse' :
-                  'bg-white/30 shadow-lg'
-                }`}>
-                  {/* Rotating Ring Animation for Active Statuses */}
-                  {['en_route_delivery', 'arrived_delivery', 'en_route_pickup', 'arrived_pickup'].includes(order.status) && (
-                    <div className="absolute inset-0 rounded-2xl border-4 border-white/40 border-t-white animate-spin"></div>
-                  )}
-                  
-                  {/* Pulsing Ring for Payment Collected */}
-                  {order.status === 'payment_collected' && (
-                    <div className="absolute inset-0 rounded-2xl border-4 border-white/60 animate-ping"></div>
-                  )}
-                  
-                  {/* Icons */}
-                  {order.status === 'completed' && <Trophy className="text-white relative z-10" size={40} />}
-                  {order.status === 'payment_collected' && <Wallet className="text-white relative z-10" size={40} />}
-                  {order.status === 'verified' && <ShieldCheck className="text-white relative z-10" size={40} />}
-                  {['en_route_delivery', 'arrived_delivery'].includes(order.status) && <Navigation className="text-white relative z-10" size={40} />}
-                  {order.status === 'picked_up' && <PackageCheck className="text-white relative z-10" size={40} />}
-                  {['en_route_pickup', 'arrived_pickup'].includes(order.status) && <Truck className="text-white relative z-10" size={40} />}
-                  {order.status === 'accepted' && <Package className="text-white relative z-10" size={40} />}
-                </div>
+            <div className="flex items-center gap-5">
+              {/* Large Animated Status Icon */}
+              <div className={`relative w-20 h-20 rounded-2xl flex items-center justify-center transform transition-all duration-500 ${
+                order.status === 'completed' ? 'bg-green-500 shadow-2xl shadow-green-500/60 scale-100' :
+                order.status === 'payment_collected' ? 'bg-green-500 shadow-2xl shadow-green-500/60 animate-bounce' :
+                order.status === 'verified' ? 'bg-green-500 shadow-2xl shadow-green-500/60 animate-pulse' :
+                order.status === 'picked_up' ? 'bg-emerald-500 shadow-2xl shadow-emerald-500/60 animate-pulse' :
+                ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-blue-500 shadow-2xl shadow-blue-500/70 animate-pulse' :
+                ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-blue-500 shadow-2xl shadow-blue-500/70 animate-pulse' :
+                order.status === 'accepted' ? 'bg-blue-500 shadow-2xl shadow-blue-500/60 animate-pulse' :
+                'bg-white/30 shadow-lg'
+              }`}>
+                {/* Rotating Ring Animation for Active Statuses */}
+                {['en_route_delivery', 'arrived_delivery', 'en_route_pickup', 'arrived_pickup'].includes(order.status) && (
+                  <div className="absolute inset-0 rounded-2xl border-4 border-white/40 border-t-white animate-spin"></div>
+                )}
                 
-                {/* Status Text */}
-                <div className="flex-1">
-                  <h2 className="text-white text-2xl mb-2 capitalize tracking-wide animate-fade-in">
-                    {order.status.replace(/_/g, ' ')}
-                  </h2>
-                  <p className="text-blue-50 leading-relaxed">
-                    {order.status === 'completed' && '🎉 Order successfully delivered'}
-                    {order.status === 'payment_collected' && '⏳ Waiting for final confirmation'}
-                    {order.status === 'verified' && '💳 Processing payment'}
-                    {['en_route_delivery', 'arrived_delivery'].includes(order.status) && '🚀 Heading to customer location'}
-                    {order.status === 'picked_up' && '📦 Package secured, ready to deliver'}
-                    {['en_route_pickup', 'arrived_pickup'].includes(order.status) && '🛣️ Going to pickup location'}
-                    {order.status === 'accepted' && '✨ Preparing for pickup'}
-                  </p>
-                </div>
+                {/* Pulsing Ring for Payment Collected */}
+                {order.status === 'payment_collected' && (
+                  <div className="absolute inset-0 rounded-2xl border-4 border-white/60 animate-ping"></div>
+                )}
+                
+                {/* Icons */}
+                {order.status === 'completed' && <Trophy className="text-white relative z-10" size={40} />}
+                {order.status === 'payment_collected' && <Wallet className="text-white relative z-10" size={40} />}
+                {order.status === 'verified' && <ShieldCheck className="text-white relative z-10" size={40} />}
+                {['en_route_delivery', 'arrived_delivery'].includes(order.status) && <Navigation className="text-white relative z-10" size={40} />}
+                {order.status === 'picked_up' && <PackageCheck className="text-white relative z-10" size={40} />}
+                {['en_route_pickup', 'arrived_pickup'].includes(order.status) && <Truck className="text-white relative z-10" size={40} />}
+                {order.status === 'accepted' && <Package className="text-white relative z-10" size={40} />}
               </div>
+              
+              {/* Status Text */}
+              <div className="flex-1">
+                <h2 className="text-white text-2xl mb-2 capitalize tracking-wide animate-fade-in">
+                  {order.status.replace(/_/g, ' ')}
+                </h2>
+                <p className="text-blue-50 leading-relaxed">
+                  {order.status === 'completed' && '🎉 Order successfully delivered'}
+                  {order.status === 'payment_collected' && '⏳ Waiting for final confirmation'}
+                  {order.status === 'verified' && '💳 Processing payment'}
+                  {['en_route_delivery', 'arrived_delivery'].includes(order.status) && '🚀 Heading to customer location'}
+                  {order.status === 'picked_up' && '📦 Package secured, ready to deliver'}
+                  {['en_route_pickup', 'arrived_pickup'].includes(order.status) && '🛣️ Going to pickup location'}
+                  {order.status === 'accepted' && '✨ Preparing for pickup'}
+                </p>
+              </div>
+            </div>
 
-              {/* Progress Indicator Bar */}
-              <div className="mt-6 relative">
-                <div className="h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div 
-                    className={`h-full rounded-full transition-all duration-1000 ease-out ${
-                      order.status === 'completed' ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
-                      order.status === 'payment_collected' ? 'bg-gradient-to-r from-green-400 to-teal-500' :
-                      order.status === 'verified' ? 'bg-gradient-to-r from-green-400 to-blue-500' :
-                      order.status === 'picked_up' ? 'bg-gradient-to-r from-emerald-400 to-cyan-500' :
-                      ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
-                      ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-gradient-to-r from-blue-400 to-purple-500' :
-                      'bg-gradient-to-r from-blue-400 to-sky-500'
-                    }`}
-                    style={{
-                      width: order.status === 'completed' ? '100%' :
-                             order.status === 'payment_collected' ? '85%' :
-                             order.status === 'verified' ? '70%' :
-                             order.status === 'picked_up' ? '55%' :
-                             ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? '40%' :
-                             ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? '25%' :
-                             order.status === 'accepted' ? '10%' : '0%'
-                    }}
-                  ></div>
-                </div>
-                <div className="flex justify-between mt-2 text-xs text-blue-100">
-                  <span>Start</span>
-                  <span>
-                    {order.status === 'completed' ? '100%' :
-                     order.status === 'payment_collected' ? '85%' :
-                     order.status === 'verified' ? '70%' :
-                     order.status === 'picked_up' ? '55%' :
-                     ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? '40%' :
-                     ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? '25%' :
-                     order.status === 'accepted' ? '10%' : '0%'}
-                  </span>
-                  <span>Complete</span>
-                </div>
+            {/* Progress Indicator Bar */}
+            <div className="mt-6 relative">
+              <div className="h-2 bg-white/20 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-1000 ease-out ${
+                    order.status === 'completed' ? 'bg-gradient-to-r from-green-400 to-emerald-500' :
+                    order.status === 'payment_collected' ? 'bg-gradient-to-r from-green-400 to-teal-500' :
+                    order.status === 'verified' ? 'bg-gradient-to-r from-green-400 to-blue-500' :
+                    order.status === 'picked_up' ? 'bg-gradient-to-r from-emerald-400 to-cyan-500' :
+                    ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? 'bg-gradient-to-r from-blue-400 to-indigo-500' :
+                    ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? 'bg-gradient-to-r from-blue-400 to-purple-500' :
+                    'bg-gradient-to-r from-blue-400 to-sky-500'
+                  }`}
+                  style={{
+                    width: order.status === 'completed' ? '100%' :
+                           order.status === 'payment_collected' ? '85%' :
+                           order.status === 'verified' ? '70%' :
+                           order.status === 'picked_up' ? '55%' :
+                           ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? '40%' :
+                           ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? '25%' :
+                           order.status === 'accepted' ? '10%' : '0%'
+                  }}
+                ></div>
+              </div>
+              <div className="flex justify-between mt-2 text-xs text-blue-100">
+                <span>Start</span>
+                <span>
+                  {order.status === 'completed' ? '100%' :
+                   order.status === 'payment_collected' ? '85%' :
+                   order.status === 'verified' ? '70%' :
+                   order.status === 'picked_up' ? '55%' :
+                   ['en_route_delivery', 'arrived_delivery'].includes(order.status) ? '40%' :
+                   ['en_route_pickup', 'arrived_pickup'].includes(order.status) ? '25%' :
+                   order.status === 'accepted' ? '10%' : '0%'}
+                </span>
+                <span>Complete</span>
               </div>
             </div>
           </div>
@@ -297,6 +296,28 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
             </div>
           </div>
         )}
+
+        {/* Package QR Code - NEW SECTION */}
+        <div className={`rounded-2xl p-4 shadow-sm ${
+          isDarkMode ? 'bg-gray-800' : 'bg-white'
+        }`}>
+          <div className="flex items-center gap-2 mb-4">
+            <QrCode className="text-blue-600" size={20} />
+            <h2 className={isDarkMode ? 'text-gray-100' : 'text-gray-800'}>Package QR Code</h2>
+          </div>
+          <div className="flex justify-center">
+            <QRCode 
+              value={order.barcode}
+              size={200}
+              bgColor={isDarkMode ? '#1F2937' : '#FFFFFF'}
+              fgColor={isDarkMode ? '#FFFFFF' : '#000000'}
+              level="H"
+            />
+          </div>
+          <p className={`text-sm text-center mt-3 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            Scan this code at pickup to verify the package
+          </p>
+        </div>
 
         {/* Transaction Status */}
         <div className={`rounded-2xl p-4 shadow-sm ${
@@ -526,19 +547,19 @@ export function OrderDetails({ order, onBack, onStartDelivery, onViewMap, isDark
 
           </div>
         </div>
-      </div>
 
-      {/* Bottom Action Button */}
-      <div className={`fixed bottom-0 left-0 right-0 border-t p-4 ${
-        isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-      }`}>
-        <button
-          onClick={onStartDelivery}
-          className="w-full bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
-        >
-          <Navigation size={20} />
-          Start Delivery
-        </button>
+        {/* Bottom Action Button */}
+        <div className={`fixed bottom-0 left-0 right-0 border-t p-4 ${
+          isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+        }`}>
+          <button
+            onClick={onStartDelivery}
+            className="w-full bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2"
+          >
+            <Navigation size={20} />
+            Start Delivery
+          </button>
+        </div>
       </div>
     </div>
   );

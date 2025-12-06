@@ -1,6 +1,10 @@
 import { ArrowLeft, MapPin, Navigation, QrCode, CheckCircle, Clock, Package, ChevronRight } from 'lucide-react';
 import type { Order, DeliveryStatus } from '../App';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import CryptoJS from 'crypto-js';
+
+// Encryption configuration - in production, use environment variables
+const BARCODE_SECRET_KEY = import.meta.env.VITE_BARCODE_SECRET_KEY || 'delivery-rider-barcode-key-2025';
 
 interface DeliveryFlowProps {
   order: Order;
@@ -14,8 +18,42 @@ interface DeliveryFlowProps {
   isDarkMode: boolean;
 }
 
+// Encryption utilities
+export const encryptBarcode = (barcode: string): string => {
+  return CryptoJS.AES.encrypt(barcode, BARCODE_SECRET_KEY).toString();
+};
+
+const decryptBarcode = (encryptedBarcode: string): string => {
+  try {
+    const bytes = CryptoJS.AES.decrypt(encryptedBarcode, BARCODE_SECRET_KEY);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return decrypted || encryptedBarcode; // Return original if decryption fails
+  } catch (e) {
+    console.warn('Decryption failed, using original barcode');
+    return encryptedBarcode; // Fallback to original
+  }
+};
+
+// Helper to check if barcode is encrypted
+const isBarcodeEncrypted = (barcode: string): boolean => {
+  // Encrypted barcodes are base64-like strings with specific CryptoJS format
+  return barcode.includes('U2FsdGVkX1') || (barcode.length > 20 && barcode.includes('='));
+};
+
 export function DeliveryFlow({ order, onBack, onScanBarcode, onVerify, onViewTracking, onViewMap, onStartNavigation, updateOrderStatus, isDarkMode }: DeliveryFlowProps) {
   const [isUpdating, setIsUpdating] = useState(false);
+  const [decryptedBarcode, setDecryptedBarcode] = useState('');
+
+  // Decrypt barcode on component mount
+  useEffect(() => {
+    if (order.barcode) {
+      if (isBarcodeEncrypted(order.barcode)) {
+        setDecryptedBarcode(decryptBarcode(order.barcode));
+      } else {
+        setDecryptedBarcode(order.barcode);
+      }
+    }
+  }, [order.barcode]);
 
   const handleStatusUpdate = (orderId: string, status: DeliveryStatus) => {
     setIsUpdating(true);
@@ -38,6 +76,15 @@ export function DeliveryFlow({ order, onBack, onScanBarcode, onVerify, onViewTra
   ];
 
   const currentStepIndex = steps.findIndex(s => s.status === order.status);
+
+  // Demo: Show encrypted barcode in console for security audit
+  useEffect(() => {
+    if (order.barcode && isBarcodeEncrypted(order.barcode)) {
+      console.log('🔒 Barcode is encrypted for security');
+      console.log('📦 Encrypted:', order.barcode);
+      console.log('🔓 Decrypted:', decryptBarcode(order.barcode));
+    }
+  }, [order.barcode]);
 
   return (
     <div className={`min-h-screen pb-24 ${isDarkMode ? 'dark bg-gray-900' : 'bg-gray-50'}`}>
@@ -220,6 +267,12 @@ export function DeliveryFlow({ order, onBack, onScanBarcode, onVerify, onViewTra
                     <p className="mb-1">Scan Order Barcode</p>
                     <p className="text-blue-100">Required to pick up package</p>
                   </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs text-blue-100 mb-1">Encrypted</p>
+                  <p className="text-xs font-mono text-blue-200">
+                    {order.barcode ? (isBarcodeEncrypted(order.barcode) ? '🔒 ' + order.barcode.substring(0, 8) + '...' : '🔓 ' + order.barcode) : 'No barcode'}
+                  </p>
                 </div>
               </div>
             </button>

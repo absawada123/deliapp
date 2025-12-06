@@ -1,12 +1,56 @@
 import { useState } from 'react';
 import { ArrowLeft, Package, MapPin, Clock, DollarSign, CheckCircle, XCircle } from 'lucide-react';
 import type { Order } from '../App';
+import CryptoJS from 'crypto-js';
 
 interface ParcelAssignmentProps {
   onBack: () => void;
   onAcceptParcel: (order: Order) => void;
   isDarkMode: boolean;
 }
+
+// QRPH Payload Interface
+interface QRPHPayload {
+  format: string;
+  version: string;
+  orderId: string;
+  hubId: string;
+  purpose: string;
+  timestamp: number;
+}
+
+// Static timestamp for deterministic encryption
+const STATIC_TIMESTAMP = 1733500800000;
+
+// QRPH Utility Functions (kept for scanner compatibility)
+export const generatePackageQRPH = (orderId: string, hubId: string = 'HUB-MNL-001'): string => {
+  const payload: QRPHPayload = {
+    format: 'ph.ppmi.p2m',
+    version: 'v1.0',
+    orderId,
+    hubId,
+    timestamp: STATIC_TIMESTAMP,
+    purpose: 'package_verification'
+  };
+  
+  return CryptoJS.AES.encrypt(JSON.stringify(payload), 'package-verification-key').toString();
+};
+
+export const decryptQRPH = (qrString: string, type: 'package' | 'payment' = 'package'): QRPHPayload | null => {
+  try {
+    const key = type === 'package' ? 'package-verification-key' : 'payment-collection-key';
+    const bytes = CryptoJS.AES.decrypt(qrString, key);
+    const decrypted = bytes.toString(CryptoJS.enc.Utf8);
+    return JSON.parse(decrypted);
+  } catch (e) {
+    console.error('QRPH decryption failed:', e);
+    return null;
+  }
+};
+
+export const isValidQRPH = (qrString: string): boolean => {
+  return qrString.includes('U2FsdGVkX1') && qrString.length > 50;
+};
 
 export function ParcelAssignment({ onBack, onAcceptParcel, isDarkMode }: ParcelAssignmentProps) {
   const [availableParcels] = useState<Order[]>([
@@ -24,7 +68,7 @@ export function ParcelAssignment({ onBack, onAcceptParcel, isDarkMode }: ParcelA
       totalAmount: 149.99,
       distance: '6.2 km',
       estimatedTime: '18 mins',
-      barcode: 'BAR456789123',
+      barcode: 'ORD-2024-003',
       otp: '2847'
     },
     {
@@ -40,7 +84,7 @@ export function ParcelAssignment({ onBack, onAcceptParcel, isDarkMode }: ParcelA
       totalAmount: 89.97,
       distance: '4.8 km',
       estimatedTime: '15 mins',
-      barcode: 'BAR789123456',
+      barcode: 'ORD-2024-004',
       otp: '5629'
     },
     {
@@ -58,7 +102,7 @@ export function ParcelAssignment({ onBack, onAcceptParcel, isDarkMode }: ParcelA
       totalAmount: 120.50,
       distance: '9.1 km',
       estimatedTime: '28 mins',
-      barcode: 'BAR321654987',
+      barcode: 'ORD-2024-005',
       otp: '8194'
     }
   ]);
@@ -210,19 +254,19 @@ export function ParcelAssignment({ onBack, onAcceptParcel, isDarkMode }: ParcelA
                     <div className="flex items-center justify-center gap-1 text-gray-500 mb-1">
                       <MapPin size={14} />
                     </div>
-                    <p className="text-gray-800">{parcel.distance}</p>
+                    <p className={isDarkMode ? 'text-gray-200' : 'text-gray-800'}>{parcel.distance}</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-gray-500 mb-1">
                       <Clock size={14} />
                     </div>
-                    <p className="text-gray-800">{parcel.estimatedTime}</p>
+                    <p className={isDarkMode ? 'text-gray-200' : 'text-gray-800'}>{parcel.estimatedTime}</p>
                   </div>
                   <div className="text-center">
                     <div className="flex items-center justify-center gap-1 text-gray-500 mb-1">
                       <DollarSign size={14} />
                     </div>
-                    <p className="text-gray-800">₱{parcel.totalAmount}</p>
+                    <p className={isDarkMode ? 'text-gray-200' : 'text-gray-800'}>₱{parcel.totalAmount}</p>
                   </div>
                 </div>
 
